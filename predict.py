@@ -18,7 +18,33 @@ import subprocess
 from threading import Thread
 
 import os
-os.environ["HUGGINGFACE_HUB_CACHE"] = os.getcwd() + "/weights"
+
+# Setup workspace-contained caching
+WORKSPACE_ROOT = "/workspace"
+if not os.path.exists(WORKSPACE_ROOT):
+    WORKSPACE_ROOT = os.path.abspath(os.path.dirname(__file__))
+
+# Configure all cache directories to stay within workspace
+os.environ["WORKSPACE_ROOT"] = WORKSPACE_ROOT
+os.environ["HF_HOME"] = os.path.join(WORKSPACE_ROOT, "cache/huggingface")
+os.environ["HUGGINGFACE_HUB_CACHE"] = os.path.join(WORKSPACE_ROOT, "cache/huggingface/hub")
+os.environ["TRANSFORMERS_CACHE"] = os.path.join(WORKSPACE_ROOT, "cache/huggingface/transformers")
+os.environ["TORCH_HOME"] = os.path.join(WORKSPACE_ROOT, "cache/torch")
+os.environ["HF_DATASETS_CACHE"] = os.path.join(WORKSPACE_ROOT, "cache/datasets")
+os.environ["PIP_CACHE_DIR"] = os.path.join(WORKSPACE_ROOT, "cache/pip")
+os.environ["XDG_CACHE_HOME"] = os.path.join(WORKSPACE_ROOT, "cache")
+
+# Create cache directories
+cache_dirs = [
+    "cache/huggingface/hub",
+    "cache/huggingface/transformers",
+    "cache/torch",
+    "cache/datasets", 
+    "cache/pip",
+    "weights"
+]
+for cache_dir in cache_dirs:
+    os.makedirs(os.path.join(WORKSPACE_ROOT, cache_dir), exist_ok=True)
 
 # url for the weights mirror
 REPLICATE_WEIGHTS_URL = "https://weights.replicate.delivery/default"
@@ -60,6 +86,9 @@ def download_json(url: str, dest: Path):
         print(f"Failed to download {url}. Status code: {res.status_code}")
 
 def download_weights(baseurl: str, basedest: str, files: list[str]):
+    # Ensure downloads stay within workspace
+    if not basedest.startswith(WORKSPACE_ROOT):
+        basedest = os.path.join(WORKSPACE_ROOT, "weights", basedest)
     basedest = Path(basedest)
     start = time.time()
     print("downloading to: ", basedest)
