@@ -94,7 +94,7 @@ def prepare_llava_input(prompt, image, tokenizer, image_processor, model_config)
     return input_ids, image_tensor, stop_str
 
 
-def generate_response(model, tokenizer, input_ids, image_tensor, stop_str, max_new_tokens=512, temperature=0.7):
+def generate_response(model, tokenizer, input_ids, image_tensor, stop_str, image_sizes, max_new_tokens=512, temperature=0.7):
     """Generate response using LLaVA model."""
     device = model.device
     
@@ -113,12 +113,12 @@ def generate_response(model, tokenizer, input_ids, image_tensor, stop_str, max_n
         output_ids = model.generate(
             input_ids,
             images=image_tensor,
+            image_sizes=image_sizes,  # Pass image_sizes parameter
             do_sample=True if temperature > 0 else False,
             temperature=temperature,
-            top_p=0.9,
             max_new_tokens=max_new_tokens,
-            use_cache=True,
-            stopping_criteria=[stopping_criteria]
+            pad_token_id=tokenizer.eos_token_id,
+            eos_token_id=tokenizer.eos_token_id
         )
     
     # Decode output
@@ -186,7 +186,7 @@ def run_amber_benchmark(model_path, query_file, image_dir, output_file, max_samp
                 prompt = query['query']  # Use the query from the file
                 max_tokens = 150
                 temp = 0.7
-            else:  # Discriminative task
+            else:  # Discriminative task  
                 prompt = f"{query['query']} Answer with only 'Yes' or 'No'."
                 max_tokens = 10
                 temp = 0.0
@@ -196,9 +196,10 @@ def run_amber_benchmark(model_path, query_file, image_dir, output_file, max_samp
                 prompt, image, tokenizer, image_processor, model.config
             )
             
-            # Generate response
+            # Generate response  
+            image_sizes = [image.size]  # Get original image size
             response = generate_response(
-                model, tokenizer, input_ids, image_tensor, stop_str, 
+                model, tokenizer, input_ids, image_tensor, stop_str, image_sizes,
                 max_new_tokens=max_tokens, temperature=temp
             )
             
