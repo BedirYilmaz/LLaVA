@@ -121,13 +121,6 @@ def main():
             torch_dtype=torch.bfloat16,
             low_cpu_mem_usage=True,
         )
-    else:
-        model = LlavaLlamaForCausalLM.from_pretrained(
-            model_name,
-            cache_dir="/workspace/.cache/huggingface/transformers",
-            torch_dtype=torch.bfloat16,
-            low_cpu_mem_usage=True,
-        )
     
     model.config.use_cache = False
     
