@@ -78,6 +78,26 @@ Below are side-by-side comparisons of model outputs on selected AMBER benchmark 
 
 The left column shows the model's output before alignment, while the right column shows the output after applying the ORPO-aligned LoRA. Notice the reduction in hallucinated content and the improved relevance of the responses after alignment.
 
+### Example: Man with Baby
+- **Before:**
+  > and seems to be asleep or resting. They are both smiling at the camera. The background is plain and light-colored, which suggests that the photo might have been taken indoors. The man's posture and the baby's relaxed state indicate a sense of comfort and affection. *(babies face is actually not visible - hallucination)*
+- **After:**
+  > camera with a smile on his face, creating a warm and affectionate scene. The child is dressed in a pink outfit, adding a touch of color to the image. The overall athmosphere suggests a close and loving relationship between the man and the child.
+
+### Example: Crowd at Monument
+- **Before:**
+  > is geometric, with a grid-like pattern that indicates a planned, organized layout. In the background, there are buildings and a body of water, which could be a river or a lake. The setting is outdoors and the weather appears to be sunny, making it a pleasant day for outdoor activities. The numbers on the image likely correspond to the different sections of the area, possibly for identification or inventory purposes.
+- **After:**
+  > for the attendees. In the background, there is a beautiful view of the Washington Monument, which adds a sense of grandeur to the scene.
+  >
+  > The crowd is dispersed throughout the field, with some people standing closer to the tents, while others are further away. The gathering appears to be a large outdoor event, possibly a picnic or a celebration, as the people are enjoying their time together in the open space. 
+  >
+  > The presence of the Washington Monument and the crowd's size suggest that this event might be taking place in a city, with the monument serving as a notable landmark. Overall, the image captures a lively and vibrant atmosphere, highlighting the beauty of a sunny day in an open space with a stunning backdrop.
+
+These qualitative results show that after alignment, the model's descriptions became more cognitively sound and detailed. Hallucinations (such as describing a baby's face that is not visible) are reduced, and the model provides richer, more contextually appropriate details (such as referencing the Washington Monument and describing the atmosphere of the event). The after-alignment outputs demonstrate a better understanding of the scene and avoid making unsupported claims.
+
+These findings are consistent with the quantitative improvements observed in the AMBER benchmark, where the model showed lower hallucination rates and better cognitive alignment scores after ORPO-based alignment. The qualitative and quantitative results together confirm that the alignment process not only reduces hallucinations but also enhances the overall quality and trustworthiness of the model's outputs.
+
 ## Training LLaVA on RLAIF-V with ORPO
 
 Now, I have trained a LoRA of the LLaVA model with ORPO on RLAIF-V. My next step is to measure the performance of LLaVA LoRA on AMBER. 
