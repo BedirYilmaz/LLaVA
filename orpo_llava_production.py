@@ -19,6 +19,7 @@ from llava.mm_utils import tokenizer_image_token
 from llava.constants import IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN
 import logging
 import argparse
+import wandb
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -121,6 +122,8 @@ def main():
     parser.add_argument("--output_dir", type=str, help="Output directory")
     parser.add_argument("--epochs", type=int, default=3, help="Number of training epochs")
     parser.add_argument("--batch_size", type=int, default=4, help="Per device batch size")
+    parser.add_argument("--wandb_project", type=str, default="llava-orpo", help="wandb project name")
+    parser.add_argument("--wandb_entity", type=str, default=None, help="wandb entity (team/user)")
     args = parser.parse_args()
     
     # Initialize configurations
@@ -241,6 +244,32 @@ def main():
     # Format dataset for ORPO
     train_dataset = format_dataset_for_orpo(dataset, tokenizer, image_processor, data_args)
     
+    # Initialize wandb
+    wandb_run = None
+    if args.wandb_project:
+        wandb_run = wandb.init(
+            project=args.wandb_project,
+            entity=args.wandb_entity,
+            name=f"llava-v1.6-7b-orpo-prod-epochs{train_args.num_train_epochs}-bs{train_args.per_device_train_batch_size}",
+            config={
+                "model_name_or_path": model_args.model_name_or_path,
+                "num_train_epochs": train_args.num_train_epochs,
+                "per_device_train_batch_size": train_args.per_device_train_batch_size,
+                "gradient_accumulation_steps": train_args.gradient_accumulation_steps,
+                "learning_rate": train_args.learning_rate,
+                "max_length": train_args.max_length,
+                "max_prompt_length": train_args.max_prompt_length,
+                "lora_r": train_args.lora_r,
+                "lora_alpha": train_args.lora_alpha,
+                "lora_dropout": train_args.lora_dropout,
+                "output_dir": train_args.output_dir,
+                "dataset_subset_size": train_args.dataset_subset_size,
+                "image_aspect_ratio": data_args.image_aspect_ratio,
+                "max_image_size": data_args.max_image_size,
+            }
+        )
+        logger.info(f"✅ wandb initialized: project={args.wandb_project}, entity={args.wandb_entity}")
+    
     # Training configuration for production
     training_args = ORPOConfig(
         output_dir=train_args.output_dir,
@@ -263,6 +292,7 @@ def main():
         max_prompt_length=train_args.max_prompt_length,
         beta=0.1,  # ORPO beta parameter
         dataset_num_proc=8,  # More processes for production
+        report_to=["wandb"],
     )
     
     # Initialize ORPO trainer
@@ -296,6 +326,11 @@ def main():
         else:
             logger.error(f"❌ FAILURE: Tokenizer vocabulary changed ({original_vocab_size} -> {final_vocab_size})")
             
+        # Log final metrics to wandb
+        if wandb_run is not None:
+            wandb_run.log({"final_epoch": train_args.num_train_epochs, "final_batch_size": train_args.per_device_train_batch_size})
+            wandb_run.finish()
+        
     except Exception as e:
         logger.error(f"❌ Training failed: {e}")
         import traceback
