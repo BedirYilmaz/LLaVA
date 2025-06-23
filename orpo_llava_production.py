@@ -125,7 +125,6 @@ def main():
     parser.add_argument("--wandb_project", type=str, default="llava-orpo", help="wandb project name")
     parser.add_argument("--wandb_entity", type=str, default=None, help="wandb entity (team/user)")
     parser.add_argument("--lora_rank", type=int, help="LoRA rank (overrides default)")
-    parser.add_argument("--grad_accum_steps", type=int, help="Gradient accumulation steps (overrides default)")
     args = parser.parse_args()
     
     # Initialize configurations
@@ -151,8 +150,6 @@ def main():
         train_args.per_device_train_batch_size = args.batch_size
     if args.lora_rank:
         train_args.lora_r = args.lora_rank
-    if args.grad_accum_steps:
-        train_args.gradient_accumulation_steps = args.grad_accum_steps
     
     # Dynamically set output_dir if not explicitly set
     if not args.output_dir and not args.test_mode:
@@ -164,8 +161,6 @@ def main():
             dynamic_parts.append(f"lora{args.lora_rank}")
         if args.epochs and args.epochs != 3:
             dynamic_parts.append(f"ep{args.epochs}")
-        if args.grad_accum_steps and args.grad_accum_steps != 8:
-            dynamic_parts.append(f"ga{args.grad_accum_steps}")
         # Add more params if desired
         suffix = "-" + "-".join(dynamic_parts) if dynamic_parts else ""
         train_args.output_dir = f"./checkpoints/llava-v1.6-7b-orpo-production{suffix}"
