@@ -287,6 +287,17 @@ def main():
     
     args = parser.parse_args()
     
+    # Dynamically set output file name if not explicitly provided
+    default_output = "llava_amber_with_lora_responses.json"
+    if args.output_file == default_output:
+        def sanitize(path):
+            if path is None:
+                return "none"
+            return os.path.splitext(os.path.basename(path.replace("/", "_").replace("\\", "_")))[0]
+        model_part = sanitize(args.model_path)
+        lora_part = sanitize(args.lora_path)
+        args.output_file = f"llava_amber_{model_part}_lora_{lora_part}_responses.json"
+
     # Create output directory
     os.makedirs(os.path.dirname(args.output_file) if os.path.dirname(args.output_file) else ".", exist_ok=True)
     
