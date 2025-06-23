@@ -151,6 +151,21 @@ def main():
     if args.lora_rank:
         train_args.lora_r = args.lora_rank
     
+    # Dynamically set output_dir if not explicitly set
+    if not args.output_dir and not args.test_mode:
+        # Compose dynamic directory name based on non-defaults
+        dynamic_parts = []
+        if args.batch_size and args.batch_size != 4:
+            dynamic_parts.append(f"bs{args.batch_size}")
+        if args.lora_rank and args.lora_rank != 128:
+            dynamic_parts.append(f"lora{args.lora_rank}")
+        if args.epochs and args.epochs != 3:
+            dynamic_parts.append(f"ep{args.epochs}")
+        # Add more params if desired
+        suffix = "-" + "-".join(dynamic_parts) if dynamic_parts else ""
+        train_args.output_dir = f"./checkpoints/llava-v1.6-7b-orpo-production{suffix}"
+        logger.info(f"[Dynamic Output Dir] Set output_dir to {train_args.output_dir}")
+    
     logger.info(f"Loading model: {model_args.model_name_or_path}")
     
     # Load tokenizer WITHOUT expanding vocabulary
