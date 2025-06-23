@@ -3,6 +3,7 @@ import sys
 import torch
 from PIL import Image
 import gradio as gr
+import argparse
 
 # Add LLaVA to Python path
 sys.path.append('/workspace/LLaVA')
@@ -106,15 +107,6 @@ def gradio_infer(image, prompt):
     except Exception as e:
         return f"Error: {e}"
 
-# ---- Load model at startup ----
-MODEL_PATH = os.environ.get("LLAVA_MODEL_PATH", "liuhaotian/llava-v1.6-mistral-7b")
-LORA_PATH = os.environ.get("LLAVA_LORA_PATH", None)
-print(f"Loading model: {MODEL_PATH}, LoRA: {LORA_PATH}")
-tokenizer, model, image_processor, context_len = load_llava_model(MODEL_PATH, lora_path=LORA_PATH)
-gradio_infer.tokenizer = tokenizer
-gradio_infer.model = model
-gradio_infer.image_processor = image_processor
-
 # ---- Gradio UI ----
 description = """
 # LLaVA with LoRA Gradio Demo\n
@@ -134,6 +126,25 @@ demo = gr.Interface(
 )
 
 def main():
+    parser = argparse.ArgumentParser(description="LLaVA Gradio LoRA Host")
+    parser.add_argument('--model_path', type=str, default=os.environ.get("LLAVA_MODEL_PATH", "liuhaotian/llava-v1.6-mistral-7b"), help='Path to LLaVA model or quantized model directory')
+    parser.add_argument('--lora_path', type=str, default=os.environ.get("LLAVA_LORA_PATH", None), help='Path to LoRA adapter (optional)')
+    parser.add_argument('--device', type=str, default='cuda', help='Device to run the model on (e.g., cuda, cpu)')
+    parser.add_argument('--load_8bit', action='store_true', help='Load model in 8-bit mode')
+    parser.add_argument('--load_4bit', action='store_true', help='Load model in 4-bit mode')
+    args = parser.parse_args()
+
+    print(f"Loading model: {args.model_path}, LoRA: {args.lora_path}, Device: {args.device}, 8bit: {args.load_8bit}, 4bit: {args.load_4bit}")
+    tokenizer, model, image_processor, context_len = load_llava_model(
+        model_path=args.model_path,
+        device=args.device,
+        load_8bit=args.load_8bit,
+        load_4bit=args.load_4bit,
+        lora_path=args.lora_path
+    )
+    gradio_infer.tokenizer = tokenizer
+    gradio_infer.model = model
+    gradio_infer.image_processor = image_processor
     demo.launch()
 
 if __name__ == "__main__":
