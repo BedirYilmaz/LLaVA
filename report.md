@@ -98,6 +98,31 @@ The results above will serve as a reference in terms of how much we have been ab
 
 ## Training LLaVA on RLAIF-V with ORPO
 
+### Training Parameters
+
+During the training process, we systematically explored several key hyperparameters to optimize model performance and resource efficiency:
+
+- **Default Configuration:**
+  - Batch size: 4
+  - LoRA rank: 128
+  - Gradient accumulation steps: 2
+
+- **LoRA Rank:**
+  Increasing the LoRA rank from 128 to 256 (using an L40 GPU) led to a notable improvement in model performance. However, this came at the cost of significantly longer training times—exceeding 10 hours for just 3 epochs (as illustrated by the blue curve in the training plot below).
+
+- **Batch Size:**
+  Leveraging an H200 instance allowed us to increase the batch size to 20 without altering the LoRA rank. This adjustment resulted in the fastest and most accurate training run, though it was also the most resource-intensive (see the black curve in the training plot).
+
+- **Gradient Accumulation Steps:**
+  Setting the gradient accumulation steps to 32 enabled larger effective batch sizes without encountering out-of-memory errors. However, increasing the batch size beyond 20 (e.g., to 48) did not yield significant further improvements.
+
+| WandB Training Output | WandB System Output |
+|:-------------------------------:|:-------------------------------:|
+| ![](report_images/wandb_training.png) | ![](report_images/wandb_system.png) |
+
+The system monitoring output indicates that there is still room to improve GPU utilization, particularly regarding image loading times. Future iterations could benefit from implementing data caching strategies or leveraging frameworks such as PyTorch Lightning or Hugging Face Accelerate to further streamline data throughput and maximize hardware efficiency.
+
+
 Now, I have trained a LoRA of the LLaVA model with ORPO on RLAIF-V. My next step is to measure the performance of LLaVA LoRA on AMBER. 
 ### Generative Task Performance:
 - CHAIR: 10.2 (worse)
