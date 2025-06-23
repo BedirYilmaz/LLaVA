@@ -31,6 +31,24 @@ To set up the environment for this project, use the provided requirements files 
 5. **(Optional) For quantization and vLLM**
    If you plan to use quantization or vLLM, install any additional dependencies as needed (see script headers or comments).
 
+6. **Download Pretrained Checkpoints from Hugging Face**
+   The LoRA and quantized checkpoints used in this project are available at:
+   [https://huggingface.co/BedirYilmaz/llava1.6_rlaif_v_orpo_lora/tree/main](https://huggingface.co/BedirYilmaz/llava1.6_rlaif_v_orpo_lora/tree/main)
+
+   You can download the following folders/files for use in your experiments:
+   - `checkpoint-1560` (LoRA adapter after 1560 steps)
+   - `checkpoint-5000` (LoRA adapter after 5000 steps)
+   - `llava-v1.6-mistral-7b-FP8-Dynamic` (FP8 quantized model for vLLM)
+
+   To download a folder using the Hugging Face CLI:
+   ```bash
+   pip install huggingface_hub
+   huggingface-cli repo clone BedirYilmaz/llava1.6_rlaif_v_orpo_lora
+   # Or download a specific folder:
+   huggingface-cli repo download BedirYilmaz/llava1.6_rlaif_v_orpo_lora --include checkpoint-1560
+   ```
+   Place the downloaded folders in your workspace and reference them in the script arguments as needed (e.g., `--lora_path` or `--model_path`).
+
 # Approach
 
 ## Understanding the task
@@ -40,11 +58,22 @@ The task is to align a vision language model ([[LLaVA-1.6 7B VLM]]) based on fee
 Based on the fact that the RLAIF-V has been proposed as the aligning method, we assume that the objective of the aligment is going to be to increase the trustworthiness of the model. In other words, mitigating the hallucinations.
 
 The RLAIF-V method depends on AI feedback. This necessitates an additional LLM to generate tokens on the fly, which makes the alignment process resource heavy. This is where the ORPO comes in. ORPO (Monolithic Preference Optimization without Reference Model) does not necessitate an additional model. This reduces the memory requirements for the alignment process significantly.
+
 ## Understanding the data
 
 ### What is RLAIF?
 
+RLAIF (Reinforcement Learning from AI Feedback for Vision) is a dataset and methodology specifically designed to align vision-language models (VLMs) with human-like preferences, with a strong focus on reducing hallucinations. In the context of VLMs, hallucinations refer to the generation of content that is not grounded in the provided image or context—such as describing objects, actions, or details that do not actually appear in the image.
+
+The RLAIF-V dataset provides pairs of model responses to image-based prompts, where one response is preferred over the other based on its factual accuracy, relevance, and lack of hallucination. By training models to prefer the more accurate, less hallucinated response, RLAIF-V directly incentivizes the model to avoid making things up and to stay grounded in the visual evidence. This makes it a powerful tool for improving the trustworthiness and reliability of VLMs.
+
 ### Some data Samples
+
+You can find data samples and exploratory analysis of the RLAIF-V dataset in the following notebook:
+
+- `/workspace/LLaVA/notebooks/EDA_on_RLAIF_V.ipynb`
+
+This notebook provides an overview of the dataset structure, example prompt-response pairs, and visualizations that help illustrate the types of hallucinations targeted by the alignment process.
 
 ## Setting up a Baseline
 
