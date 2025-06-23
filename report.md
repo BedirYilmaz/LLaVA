@@ -62,8 +62,7 @@ Below are the scores results of off-the-shelf [[LLaVA-1.6 7B VLM]] on [[AMBER be
 - Cog: 2.8 (cognitive alignment score)
 
 The LLaVA-1.6 7B results are comparable to the results provided in the original AMBER paper.
-
-![["report_images/Pasted image 20250619174150.png"]]
+![](report_images/Pasted image 20250619174150.png)
 
 The results above will serve as a reference in terms of how much we have been able to increase the trustworthiness of the model. 
 
