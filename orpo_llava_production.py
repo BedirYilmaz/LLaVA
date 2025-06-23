@@ -126,6 +126,7 @@ def main():
     parser.add_argument("--wandb_entity", type=str, default=None, help="wandb entity (team/user)")
     parser.add_argument("--lora_rank", type=int, help="LoRA rank (overrides default)")
     parser.add_argument("--gradient_accumulation_steps", type=int, help="Gradient accumulation steps (overrides default)")
+    parser.add_argument("--save_steps", type=int, help="Save checkpoint every N steps (overrides default)")
     args = parser.parse_args()
     
     # Initialize configurations
@@ -153,6 +154,8 @@ def main():
         train_args.lora_r = args.lora_rank
     if args.gradient_accumulation_steps:
         train_args.gradient_accumulation_steps = args.gradient_accumulation_steps
+    if args.save_steps:
+        train_args.save_steps = args.save_steps
     
     # Dynamically set output_dir if not explicitly set
     if not args.output_dir and not args.test_mode:
