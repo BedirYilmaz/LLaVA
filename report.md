@@ -67,6 +67,18 @@ The LLaVA-1.6 7B results are comparable to the results provided in the original 
 
 The results above will serve as a reference in terms of how much we have been able to increase the trustworthiness of the model. 
 
+## Training LLaVA on RLAIF-V with ORPO
+
+Now, I have trained a LoRA of the LLaVA model with ORPO on RLAIF-V. My next step is to measure the performance of LLaVA LoRA on AMBER. 
+### Generative Task Performance:
+- CHAIR: 10.2 (worse)
+- Cover: 43.6% (worse)
+- Hal: 31.1% (better)
+- Cog: 2.6 (better)
+
+We have improved the model on two metrics : Hal and Cog. Now we have better cognitive alignment and lower hallucination while also worse coverage of objects. 
+
+
 ## Qualitative Comparison: Before and After Alignment
 
 Below are side-by-side comparisons of model outputs on selected AMBER benchmark images, before and after ORPO-based alignment. These examples illustrate the qualitative improvements in hallucination reduction and cognitive alignment.
@@ -98,16 +110,6 @@ These qualitative results show that after alignment, the model's descriptions be
 
 These findings are consistent with the quantitative improvements observed in the AMBER benchmark, where the model showed lower hallucination rates and better cognitive alignment scores after ORPO-based alignment. The qualitative and quantitative results together confirm that the alignment process not only reduces hallucinations but also enhances the overall quality and trustworthiness of the model's outputs.
 
-## Training LLaVA on RLAIF-V with ORPO
-
-Now, I have trained a LoRA of the LLaVA model with ORPO on RLAIF-V. My next step is to measure the performance of LLaVA LoRA on AMBER. 
-### Generative Task Performance:
-- CHAIR: 10.2 (worse)
-- Cover: 43.6% (worse)
-- Hal: 31.1% (better)
-- Cog: 2.6 (better)
-
-We have improved the model on two metrics : Hal and Cog. Now we have better cognitive alignment and lower hallucination while also worse coverage of objects. 
 
 ## Hosting LLaVA with RLAIF-V LoRA on Gradio
 
