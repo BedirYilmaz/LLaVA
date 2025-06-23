@@ -231,24 +231,38 @@ These efforts resulted in a robust, reproducible workflow for aligning, evaluati
 I encountered two hurdles while I was trying to do inference with LoRA:
 ## 1- Orpo - LLaVA transformer library version mismatch
 we can fix this by using different transformers libraries during training and evaluation
-	LLaVA needs transformers=4.37.2
+	
+    LLaVA needs transformers=4.37.2
 	pretty much the best option since we wont need the orpo after we trained the model good enough
-		here is a problem with that: it is not exactly very easy to load a LoRA without the libraries from the LoRA Trainer. And some of those libraries need the 4.37.2-incompatible LLaVA loader I guess.
+		
+        here is a problem with that: it is not exactly very easy to load a LoRA without the libraries from the LoRA Trainer. And some of those libraries need the 4.37.2-incompatible LLaVA loader I guess.
+
 	OR
+
 we need to fix the orpo training and use the old transformers library during training.
-	not possible, trl uses transformers>=4.50.0
+	
+    not possible, trl uses transformers>=4.50.0
 better put:
-	there is a library version mismatch between the LLaVA repository and trl, which has the orpo, which is needed for training. long story short training and evaluation has transformer library version mismatch.  
-	LLaVA needs transformers=4.37.2  
+	
+    there is a library version mismatch between the LLaVA repository and trl, which has the orpo, which is needed for training. long story short training and evaluation has transformer library version mismatch.  
+	
+    LLaVA needs transformers=4.37.2  
 	trl uses transformers>=4.50.0  
-	The good news is that LoRA adapters are fundamentally just weight matrices that can be converted between different frameworks.
-	But what is the problem with using transformers > 4.50 ? ---> it causes the model not to load, because of  [TypeError: LlavaLlamaForCausalLM.forward() got an unexpected keyword argument 'cache_position'](https://github.com/huggingface/transformers/issues/29426#top)
+	
+    The good news is that LoRA adapters are fundamentally just weight matrices that can be converted between different frameworks.
+	
+    But what is the problem with using transformers > 4.50 ? ---> it causes the model not to load, because of  [TypeError: LlavaLlamaForCausalLM.forward() got an unexpected keyword argument 'cache_position'](https://github.com/huggingface/transformers/issues/29426#top)
+
 SOLVED: Fixed this with a workaround, just added the dummy parameter cache_position to the function to avoid this trivial syntactic error
 	
 ## 2- Vocabulary size mismatch
 
 During ORPO training, the <image> token was added to the tokenizer, expanding the vocabulary from 32,000 to 32,001 tokens. But when we load the base model fresh, this token isn't added, causing the size mismatch.
-	one way to fix it is to extend the attention map with a zero, where the token <image> resides
-		OR
-	we need to fix orpo training.
+	
+    one way to fix it is to extend the attention map with a zero, where the token <image> resides
+		
+        OR
+	
+    we need to fix orpo training.
+    
 SOLVED: Solved this by fixing the orpo training. I have made sure that it does not expand the vocabulary.
