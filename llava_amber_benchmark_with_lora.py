@@ -138,7 +138,7 @@ def generate_response(model, tokenizer, input_ids, image_tensor, stop_str, image
     return outputs
 
 
-def run_amber_benchmark(model_path, query_file, image_dir, output_file, max_samples=None, start_from=0):
+def run_amber_benchmark(model_path, query_file, image_dir, output_file, max_samples=None, start_from=0, lora_path=None):
     """Run AMBER benchmark on given query file."""
     
     print(f"🚀 Starting AMBER benchmark")
@@ -148,11 +148,7 @@ def run_amber_benchmark(model_path, query_file, image_dir, output_file, max_samp
     print(f"📊 Max samples: {max_samples}")
     print(f"🎯 Starting from: {start_from}")
     
-    lora_path = "/workspace/LLaVA/checkpoints/llava-v1.6-7b-orpo-fixed"
-
-
-    # Load model
-    print("🔄 Loading LLaVA model...")
+    # lora_path is now passed as an argument
     tokenizer, model, image_processor, context_len = load_llava_model(model_path, lora_path=lora_path)
     print("✅ Model loaded successfully!")
     
@@ -286,6 +282,8 @@ def main():
                         help="Skip inference and only run evaluation")
     parser.add_argument("--skip_evaluation", action="store_true",
                         help="Skip evaluation and only run inference")
+    parser.add_argument("--lora_path", type=str, default=None,
+                        help="Path to LoRA adapter (optional)")
     
     args = parser.parse_args()
     
@@ -300,7 +298,8 @@ def main():
             args.image_dir,
             args.output_file,
             args.max_samples,
-            args.start_from
+            args.start_from,
+            args.lora_path
         )
     
     if not args.skip_evaluation:
