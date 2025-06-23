@@ -237,7 +237,7 @@ pretty much the best option since we wont need the orpo after we trained the mod
 		
 here is a problem with that: it is not exactly very easy to load a LoRA without the libraries from the LoRA Trainer. And some of those libraries need the 4.37.2-incompatible LLaVA loader I guess.
 
-	OR
+  OR
 
 we need to fix the orpo training and use the old transformers library during training.
 	
@@ -261,7 +261,7 @@ During ORPO training, the <image> token was added to the tokenizer, expanding th
 	
 one way to fix it is to extend the attention map with a zero, where the token <image> resides
 		
-        OR
+  OR
 	
 we need to fix orpo training.
 
