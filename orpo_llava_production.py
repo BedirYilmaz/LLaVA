@@ -124,6 +124,7 @@ def main():
     parser.add_argument("--batch_size", type=int, default=4, help="Per device batch size")
     parser.add_argument("--wandb_project", type=str, default="llava-orpo", help="wandb project name")
     parser.add_argument("--wandb_entity", type=str, default=None, help="wandb entity (team/user)")
+    parser.add_argument("--lora_rank", type=int, help="LoRA rank (overrides default)")
     args = parser.parse_args()
     
     # Initialize configurations
@@ -147,6 +148,8 @@ def main():
         train_args.num_train_epochs = args.epochs
     if args.batch_size:
         train_args.per_device_train_batch_size = args.batch_size
+    if args.lora_rank:
+        train_args.lora_r = args.lora_rank
     
     logger.info(f"Loading model: {model_args.model_name_or_path}")
     
