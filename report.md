@@ -71,7 +71,7 @@ The RLAIF-V dataset provides pairs of model responses to image-based prompts, wh
 
 You can find data samples and exploratory analysis of the RLAIF-V dataset in the following notebook:
 
-- `/workspace/LLaVA/notebooks/EDA_on_RLAIF_V.ipynb`
+- [EDA_on_RLAIF_V.ipynb](../notebooks/EDA_on_RLAIF_V.ipynb)
 
 This notebook provides an overview of the dataset structure, example prompt-response pairs, and visualizations that help illustrate the types of hallucinations targeted by the alignment process.
 
